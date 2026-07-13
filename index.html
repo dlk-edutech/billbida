@@ -47,18 +47,26 @@
         th { background-color: #f2f2f2; }
 
         .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 50%; border-radius: 8px; }
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 50%; max-width: 500px; border-radius: 8px; }
         .mon-phu-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
         .mon-phu-item { padding: 5px 10px; border: 1px solid #2196F3; border-radius: 4px; cursor: pointer; background: #e3f2fd; }
         
         .cai-dat-pin { background: #fff3e0; padding: 15px; border-radius: 8px; border: 1px solid #ffcc80; margin-bottom: 20px; }
 
-        /* css them cho nut tang giam so luong */
         #modal-mon-da-goi { list-style-type: none; padding: 0; }
         .item-da-goi { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding: 8px; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; }
         .btn-sl { padding: 2px 10px; margin: 0 5px; cursor: pointer; background: #e0e0e0; color: #333; border: none; border-radius: 4px; font-weight: bold; font-size: 16px;}
         .btn-sl:hover { background: #ccc; }
         .so-luong-hien-thi { display: inline-block; width: 20px; text-align: center; font-weight: bold;}
+
+        /* css rieng cho phan chi tiet hoa don */
+        .bill-header { text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px; }
+        .bill-info p { margin: 5px 0; }
+        .bill-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        .bill-table th, .bill-table td { border: none; border-bottom: 1px solid #eee; padding: 8px 5px; }
+        .bill-table th { background: transparent; font-weight: bold; border-bottom: 2px solid #ccc; }
+        .bill-total { text-align: right; color: #f44336; border-top: 2px dashed #ccc; padding-top: 10px; font-size: 1.2em; }
+        .bill-actions { text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -150,14 +158,15 @@
 
 <div id="modal-ban" class="modal">
     <div class="modal-content">
-        <h2 id="modal-tieu-de-ban">Bàn</h2>
         <div id="khu-vuc-bat-dau" style="display: none;">
+            <h2 id="modal-tieu-de-ban-trong">Bàn</h2>
             <p>Bàn hiện đang trống.</p>
             <button onclick="bat_dau_ban()">Bắt Đầu Chơi</button>
             <button class="btn-huy" onclick="dong_modal()">Đóng</button>
         </div>
         
         <div id="khu-vuc-dang-choi" style="display: none;">
+            <h2 id="modal-tieu-de-ban-choi">Bàn</h2>
             <p>Thời gian bắt đầu: <strong id="modal-thoi-gian-bat-dau"></strong></p>
             <h4>Thêm Món Dịch Vụ:</h4>
             <div class="mon-phu-list" id="modal-danh-sach-mon"></div>
@@ -169,13 +178,35 @@
         </div>
 
         <div id="khu-vuc-hoa-don" style="display: none;">
-            <h3>Chi Tiết Hóa Đơn</h3>
-            <p>Thời gian chơi: <span id="bill-thoi-gian"></span></p>
-            <p>Tiền giờ: <strong id="bill-tien-gio"></strong> VNĐ</p>
-            <p>Tiền dịch vụ: <strong id="bill-tien-dich-vu"></strong> VNĐ</p>
-            <h3 style="color: #f44336;">Tổng cộng: <span id="bill-tong-tien"></span> VNĐ</h3>
-            <button onclick="thanh_toan_hoa_don()">Xác Nhận Thanh Toán</button>
-            <button class="btn-huy" onclick="dong_modal()">Hủy Bỏ</button>
+            <div class="bill-header">
+                <h2>HÓA ĐƠN THANH TOÁN</h2>
+            </div>
+            <div class="bill-info">
+                <p><strong>Bàn:</strong> <span id="bill-ten-ban"></span></p>
+                <p><strong>Giờ vào:</strong> <span id="bill-gio-vao"></span></p>
+                <p><strong>Giờ ra:</strong> <span id="bill-gio-ra"></span></p>
+                <p><strong>Thời gian chơi:</strong> <span id="bill-thoi-gian"></span></p>
+            </div>
+            
+            <table class="bill-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Chi tiết các khoản</th>
+                        <th style="text-align: center;">SL</th>
+                        <th style="text-align: right;">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody id="bill-chi-tiet-khoan">
+                    <!-- render chi tiet tien gio va tien mon bang js -->
+                </tbody>
+            </table>
+
+            <h3 class="bill-total">Tổng thanh toán: <span id="bill-tong-tien"></span> VNĐ</h3>
+            
+            <div class="bill-actions">
+                <button onclick="thanh_toan_hoa_don()">Xác Nhận Thanh Toán</button>
+                <button class="btn-huy" onclick="dong_modal()">Hủy Bỏ</button>
+            </div>
         </div>
     </div>
 </div>
@@ -431,7 +462,9 @@
     window.mo_modal_ban = function(ma_ban) {
         ban_dang_chon = ma_ban;
         let ban = danh_sach_ban[ma_ban];
-        document.getElementById('modal-tieu-de-ban').innerText = ban.ten_ban;
+        
+        document.getElementById('modal-tieu-de-ban-trong').innerText = ban.ten_ban;
+        document.getElementById('modal-tieu-de-ban-choi').innerText = ban.ten_ban;
         document.getElementById('modal-ban').style.display = 'block';
         
         document.getElementById('khu-vuc-bat-dau').style.display = 'none';
@@ -497,7 +530,7 @@
         if(ds_hien_tai[key_mon]) {
             ds_hien_tai[key_mon].so_luong += thay_doi;
             if(ds_hien_tai[key_mon].so_luong <= 0) {
-                delete ds_hien_tai[key_mon]; // xoa khoi danh sach neu so luong ve 0 hoac be hon
+                delete ds_hien_tai[key_mon];
             }
             update(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban/' + ban_dang_chon), { mon_da_goi: ds_hien_tai });
             setTimeout(ve_mon_dang_choi, 200);
@@ -520,26 +553,50 @@
         setTimeout(ve_mon_dang_choi, 200);
     };
 
+    // ham xuat chi tiet hoa don de thanh toan
     window.hien_thi_hoa_don = function() {
         document.getElementById('khu-vuc-dang-choi').style.display = 'none';
         document.getElementById('khu-vuc-hoa-don').style.display = 'block';
         
         let ban = danh_sach_ban[ban_dang_chon];
-        let thoi_gian_choi = new Date().getTime() - ban.thoi_gian_bat_dau;
+        let thoi_gian_ket_thuc = new Date().getTime();
+        let thoi_gian_choi = thoi_gian_ket_thuc - ban.thoi_gian_bat_dau;
         
         let so_phut = Math.ceil(thoi_gian_choi / 60000);
         let tien_gio = (so_phut / 60) * gia_tien_mot_gio;
         
+        // dien thong tin chung cua bill
+        document.getElementById('bill-ten-ban').innerText = ban.ten_ban;
+        document.getElementById('bill-gio-vao').innerText = new Date(ban.thoi_gian_bat_dau).toLocaleTimeString('vi-VN');
+        document.getElementById('bill-gio-ra').innerText = new Date(thoi_gian_ket_thuc).toLocaleTimeString('vi-VN');
+        document.getElementById('bill-thoi-gian').innerText = `${so_phut} phút`;
+        
         let tien_dv = 0;
+        let html_chi_tiet_khoan = `
+            <tr>
+                <td>Tiền giờ (${so_phut} phút)</td>
+                <td style="text-align: center;">-</td>
+                <td style="text-align: right;">${dinh_dang_tien(tien_gio)}</td>
+            </tr>
+        `;
+
+        // xu ly chi tiet tung mon phu da goi
         if(ban.mon_da_goi) {
             for(let k in ban.mon_da_goi) {
-                tien_dv += (ban.mon_da_goi[k].gia_mon * ban.mon_da_goi[k].so_luong);
+                let m = ban.mon_da_goi[k];
+                let thanh_tien_mon = m.gia_mon * m.so_luong;
+                tien_dv += thanh_tien_mon;
+                html_chi_tiet_khoan += `
+                    <tr>
+                        <td>${m.ten_mon} (Đơn giá: ${dinh_dang_tien(m.gia_mon)})</td>
+                        <td style="text-align: center;">${m.so_luong}</td>
+                        <td style="text-align: right;">${dinh_dang_tien(thanh_tien_mon)}</td>
+                    </tr>
+                `;
             }
         }
 
-        document.getElementById('bill-thoi-gian').innerText = `${so_phut} phút`;
-        document.getElementById('bill-tien-gio').innerText = dinh_dang_tien(tien_gio);
-        document.getElementById('bill-tien-dich-vu').innerText = dinh_dang_tien(tien_dv);
+        document.getElementById('bill-chi-tiet-khoan').innerHTML = html_chi_tiet_khoan;
         document.getElementById('bill-tong-tien').innerText = dinh_dang_tien(tien_gio + tien_dv);
         
         document.getElementById('modal-ban').dataset.tienGio = tien_gio;
