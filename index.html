@@ -50,6 +50,8 @@
         button:hover { background: #0b7dda; }
         button.btn-huy { background: #9e9e9e; }
         button.btn-huy:hover { background: #757575; }
+        button.btn-sua { background: #ff9800; }
+        button.btn-sua:hover { background: #e68a00; }
         button.btn-ket-thuc { background: #f44336; }
         button.btn-ket-thuc:hover { background: #d32f2f; }
         
@@ -164,21 +166,23 @@
             </div>
         </div>
 
-        <h3>Cài Đặt Giá Giờ</h3>
+        <h3>Giá Tiền Giờ Mặc Định (Chung)</h3>
+        <p style="font-size: 0.9em; color: #555;">Sẽ được áp dụng nếu bàn không được đặt giá riêng.</p>
         <div class="form-group flex-wrap">
             <input type="number" id="gia-tien-gio-input" class="input-flex" placeholder="Giá tiền mỗi giờ (VNĐ)">
-            <button class="btn-flex" onclick="luu_gia_tien_gio()">Cập Nhật Giá</button>
+            <button class="btn-flex" onclick="luu_gia_tien_gio()">Cập Nhật Giá Chung</button>
         </div>
         <hr>
         
         <h3>Quản Lý Bàn Chơi</h3>
         <div class="form-group flex-wrap">
             <input type="text" id="ten-ban-input" class="input-flex" placeholder="Tên bàn mới (VD: Bàn VIP 1)">
+            <input type="number" id="gia-ban-input" class="input-flex" placeholder="Giá giờ (Để trống = Giá mặc định)">
             <button class="btn-flex" onclick="them_ban_moi()">Thêm Bàn</button>
         </div>
         <div class="table-responsive" style="margin-bottom: 20px;">
             <table id="bang-quan-ly-ban">
-                <thead><tr><th>Tên Bàn</th><th>Trạng Thái</th><th>Thao Tác</th></tr></thead>
+                <thead><tr><th>Tên Bàn</th><th>Giá Giờ</th><th>Trạng Thái</th><th>Thao Tác</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -218,6 +222,7 @@
         <div id="khu-vuc-bat-dau" style="display: none; text-align: center;">
             <h2 id="modal-tieu-de-ban-trong">Bàn</h2>
             <p>Bàn hiện đang trống.</p>
+            <p style="color: #666; font-size: 0.9em;">Giá giờ: <strong id="modal-gia-trong"></strong> VNĐ</p>
             <br>
             <div class="bill-actions">
                 <button onclick="bat_dau_ban()">Bắt Đầu Chơi</button>
@@ -229,6 +234,7 @@
         <div id="khu-vuc-dang-choi" style="display: none;">
             <h2 id="modal-tieu-de-ban-choi" style="text-align: center; margin-top: 0;">Bàn</h2>
             <p>Thời gian bắt đầu: <strong id="modal-thoi-gian-bat-dau"></strong></p>
+            <p style="color: #666; font-size: 0.9em; margin-top: 0;">Mức giá áp dụng: <strong id="modal-gia-choi"></strong> VNĐ/h</p>
             
             <h4>Thêm Món Dịch Vụ:</h4>
             <div class="mon-phu-list" id="modal-danh-sach-mon"></div>
@@ -422,6 +428,8 @@
             if (ket_qua.exists()) {
                 gia_tien_mot_gio = ket_qua.val();
                 document.getElementById('gia-tien-gio-input').value = gia_tien_mot_gio;
+                hien_thi_giao_dien_ban(); // render lai vi gia chung co the anh huong ban chua co gia rieng
+                hien_thi_quan_ly_ban();
             }
         });
 
@@ -469,38 +477,75 @@
             let b = danh_sach_ban[ma];
             let class_tt = b.trang_thai === 'trong' ? 'trong' : 'dang-choi';
             let chu_tt = b.trang_thai === 'trong' ? 'Trống' : 'Đang chơi';
+            let gia_ap_dung = b.gia_gio || gia_tien_mot_gio;
+            
             khu_vuc.innerHTML += `
                 <div class="card-ban ${class_tt}" onclick="mo_modal_ban('${ma}')">
-                    <h3>${b.ten_ban}</h3><p>${chu_tt}</p>
+                    <h3 style="margin-bottom: 5px;">${b.ten_ban}</h3>
+                    <p style="font-size: 0.85em; color: #555; margin-top: 0;">Giá: ${dinh_dang_tien(gia_ap_dung)}/h</p>
+                    <p style="font-weight: bold; margin-bottom: 0;">${chu_tt}</p>
                 </div>
             `;
         }
     }
 
-    // quan ly tang giam ban
+    // quan ly tang giam ban va gia rieng
     function hien_thi_quan_ly_ban() {
         const bang_ban = document.getElementById('bang-quan-ly-ban').getElementsByTagName('tbody')[0];
         bang_ban.innerHTML = '';
         for (let ma in danh_sach_ban) {
             let b = danh_sach_ban[ma];
             let tt = b.trang_thai === 'trong' ? 'Trống' : 'Đang chơi';
+            let gia_hien_tai = b.gia_gio || gia_tien_mot_gio;
+            let ghi_chu_gia = b.gia_gio ? "" : " (Chung)";
+
             bang_ban.innerHTML += `<tr>
-                <td>${b.ten_ban}</td><td>${tt}</td>
-                <td><button class="btn-huy" onclick="xoa_ban('${ma}')">Xóa</button></td>
+                <td><strong>${b.ten_ban}</strong></td>
+                <td>${dinh_dang_tien(gia_hien_tai)}${ghi_chu_gia}</td>
+                <td>${tt}</td>
+                <td>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn-sua" onclick="sua_gia_ban('${ma}', ${gia_hien_tai})">Sửa Giá</button>
+                        <button class="btn-huy" onclick="xoa_ban('${ma}')">Xóa</button>
+                    </div>
+                </td>
             </tr>`;
         }
     }
 
     window.them_ban_moi = function() {
         const ten = document.getElementById('ten-ban-input').value;
+        const gia_nhap = document.getElementById('gia-ban-input').value;
+        let gia_ban = gia_nhap ? parseInt(gia_nhap) : null;
+
         if (ten) {
-            push(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban'), {
-                ten_ban: ten, trang_thai: 'trong', thoi_gian_bat_dau: null, mon_da_goi: {}
-            });
+            let data_moi = { ten_ban: ten, trang_thai: 'trong', thoi_gian_bat_dau: null, mon_da_goi: {} };
+            if(gia_ban) data_moi.gia_gio = gia_ban; // chi luu neu co nhap gia rieng
+
+            push(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban'), data_moi);
             document.getElementById('ten-ban-input').value = '';
+            document.getElementById('gia-ban-input').value = '';
             alert("Thêm bàn thành công!");
         } else {
             alert("Vui lòng nhập tên bàn!");
+        }
+    };
+
+    window.sua_gia_ban = function(ma_ban, gia_cu) {
+        let gia_moi = prompt("Nhập mức giá giờ MỚI cho bàn này (Nhập số):\n*Để trống nếu muốn quay về giá chung*", gia_cu);
+        if (gia_moi !== null) {
+            let ban_ref = ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban/' + ma_ban);
+            if (gia_moi.trim() === "") {
+                // xoa gia rieng, dung gia chung
+                update(ban_ref, { gia_gio: null });
+                alert("Đã chuyển về sử dụng giá giờ chung!");
+            } else if (!isNaN(gia_moi) && parseInt(gia_moi) > 0) {
+                // cap nhat gia rieng
+                update(ban_ref, { gia_gio: parseInt(gia_moi) });
+                alert("Đã cập nhật giá riêng cho bàn!");
+            } else {
+                alert("Giá nhập vào không hợp lệ!");
+            }
         }
     };
 
@@ -514,7 +559,7 @@
         }
     };
 
-    // quan ly thuc don va gia
+    // quan ly thuc don va gia chung
     function hien_thi_thuc_don() {
         const bang = document.getElementById('bang-thuc-don').getElementsByTagName('tbody')[0];
         bang.innerHTML = '';
@@ -531,7 +576,7 @@
         const gia = parseInt(document.getElementById('gia-tien-gio-input').value);
         if(gia > 0) {
             set(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/cai_dat/gia_tien_gio'), gia);
-            alert("Cập nhật thành công!");
+            alert("Đã cập nhật mức giá giờ mặc định chung!");
         }
     };
 
@@ -553,11 +598,14 @@
     window.mo_modal_ban = function(ma) {
         ban_dang_chon = ma;
         let b = danh_sach_ban[ma];
+        let gia_ap_dung = b.gia_gio || gia_tien_mot_gio;
         
         document.getElementById('modal-tieu-de-ban-trong').innerText = b.ten_ban;
         document.getElementById('modal-tieu-de-ban-choi').innerText = b.ten_ban;
-        document.getElementById('modal-ban').style.display = 'block';
+        document.getElementById('modal-gia-trong').innerText = dinh_dang_tien(gia_ap_dung);
+        document.getElementById('modal-gia-choi').innerText = dinh_dang_tien(gia_ap_dung);
         
+        document.getElementById('modal-ban').style.display = 'block';
         document.getElementById('khu-vuc-bat-dau').style.display = 'none';
         document.getElementById('khu-vuc-dang-choi').style.display = 'none';
         document.getElementById('khu-vuc-hoa-don').style.display = 'none';
@@ -643,11 +691,13 @@
         document.getElementById('khu-vuc-hoa-don').style.display = 'block';
         
         let b = danh_sach_ban[ban_dang_chon];
+        let gia_ap_dung = b.gia_gio || gia_tien_mot_gio;
+        
         let ket_thuc = new Date().getTime();
         let tg_choi = ket_thuc - b.thoi_gian_bat_dau;
         
         let phut = Math.ceil(tg_choi / 60000);
-        let tien_g = (phut / 60) * gia_tien_mot_gio;
+        let tien_g = (phut / 60) * gia_ap_dung;
         
         document.getElementById('bill-ten-ban').innerText = b.ten_ban;
         document.getElementById('bill-gio-vao').innerText = new Date(b.thoi_gian_bat_dau).toLocaleTimeString('vi-VN');
@@ -657,7 +707,7 @@
         let tien_dv = 0;
         let html_khoan = `
             <tr>
-                <td>Tiền giờ (${phut} phút)</td>
+                <td>Tiền giờ (${phut} phút x ${dinh_dang_tien(gia_ap_dung)}/h)</td>
                 <td style="text-align: center;">-</td>
                 <td style="text-align: right;">${dinh_dang_tien(tien_g)}</td>
             </tr>
