@@ -9,20 +9,17 @@
         .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: #333; }
         
-        /* Giao dien dang nhap */
         .login-box { max-width: 400px; margin: 50px auto; padding: 30px; background: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; }
         .login-box input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; text-align: center; font-size: 16px; letter-spacing: 2px; }
         .login-box button { width: 100%; padding: 10px; background: #2196F3; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
         .login-box button:hover { background: #0b7dda; }
 
-        /* Giao dien Admin */
         .admin-panel { display: none; }
         .admin-form { display: flex; gap: 10px; margin-bottom: 20px; }
         .admin-form input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
         .admin-form button { padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
         .link-clb { font-size: 12px; color: #2196F3; word-break: break-all; }
 
-        /* Giao dien app chinh */
         #giao-dien-ung-dung { display: none; }
         .tabs { display: flex; justify-content: center; margin-bottom: 20px; }
         .tab-btn { padding: 10px 20px; margin: 0 5px; cursor: pointer; border: none; background: #e0e0e0; border-radius: 4px; font-weight: bold; }
@@ -55,18 +52,23 @@
         .mon-phu-item { padding: 5px 10px; border: 1px solid #2196F3; border-radius: 4px; cursor: pointer; background: #e3f2fd; }
         
         .cai-dat-pin { background: #fff3e0; padding: 15px; border-radius: 8px; border: 1px solid #ffcc80; margin-bottom: 20px; }
+
+        /* css them cho nut tang giam so luong */
+        #modal-mon-da-goi { list-style-type: none; padding: 0; }
+        .item-da-goi { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding: 8px; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; }
+        .btn-sl { padding: 2px 10px; margin: 0 5px; cursor: pointer; background: #e0e0e0; color: #333; border: none; border-radius: 4px; font-weight: bold; font-size: 16px;}
+        .btn-sl:hover { background: #ccc; }
+        .so-luong-hien-thi { display: inline-block; width: 20px; text-align: center; font-weight: bold;}
     </style>
 </head>
 <body>
 
-<!-- GIAO DIEN DANG NHAP ADMIN -->
 <div id="giao-dien-dang-nhap-admin" class="login-box">
     <h2>Đăng Nhập Quản Trị Hệ Thống</h2>
     <input type="password" id="mat-khau-admin" placeholder="Nhập mã quản trị viên">
     <button onclick="kiem_tra_admin()">Đăng Nhập</button>
 </div>
 
-<!-- GIAO DIEN QUAN LY ADMIN -->
 <div id="giao-dien-quan-ly-admin" class="container admin-panel">
     <h1>Bảng Điều Khiển Hệ Thống</h1>
     <div class="admin-form">
@@ -84,19 +86,16 @@
             </tr>
         </thead>
         <tbody id="danh-sach-clb-admin">
-            <!-- render bang js -->
         </tbody>
     </table>
 </div>
 
-<!-- GIAO DIEN DANG NHAP CUA CAU LAC BO -->
 <div id="giao-dien-dang-nhap-clb" class="login-box" style="display: none;">
     <h2>Đăng Nhập: <span id="ten-clb-hien-thi">...</span></h2>
     <input type="password" id="ma-pin-dang-nhap" placeholder="Nhập mã PIN 4 ký tự" maxlength="4">
     <button onclick="kiem_tra_pin_clb()">Vào Hệ Thống</button>
 </div>
 
-<!-- GIAO DIEN PHAN MEM BILLARD -->
 <div id="giao-dien-ung-dung" class="container">
     <h1 id="tieu-de-app-clb">Quản Lý Billard</h1>
     
@@ -149,7 +148,6 @@
     </div>
 </div>
 
-<!-- MODAL TINH TIEN BAN -->
 <div id="modal-ban" class="modal">
     <div class="modal-content">
         <h2 id="modal-tieu-de-ban">Bàn</h2>
@@ -163,7 +161,7 @@
             <p>Thời gian bắt đầu: <strong id="modal-thoi-gian-bat-dau"></strong></p>
             <h4>Thêm Món Dịch Vụ:</h4>
             <div class="mon-phu-list" id="modal-danh-sach-mon"></div>
-            <h4>Đã Gọi:</h4>
+            <h4>Đã Gọi (Có thể điều chỉnh số lượng):</h4>
             <ul id="modal-mon-da-goi"></ul>
             <hr>
             <button class="btn-ket-thuc" onclick="hien_thi_hoa_don()">Kết Thúc & Tính Tiền</button>
@@ -213,10 +211,8 @@
     const kiem_tra_clb = tham_so_url.get('club');
 
     if (kiem_tra_clb) {
-        // neu co clb trong link, hien thi dang nhap clb
         document.getElementById('giao-dien-dang-nhap-admin').style.display = 'none';
         
-        // lay thong tin ten clb de hien thi
         get(ref(co_so_du_lieu, 'admin_clubs/' + kiem_tra_clb)).then((ket_qua) => {
             if (ket_qua.exists()) {
                 thong_tin_clb_hien_tai = ket_qua.val();
@@ -291,7 +287,6 @@
         }
     };
 
-
     // logic cua quan ly cau lac bo
     window.kiem_tra_pin_clb = function() {
         const pin_nhap = document.getElementById('ma-pin-dang-nhap').value;
@@ -321,7 +316,6 @@
     function khoi_tao_ung_dung_clb() {
         const nut_du_lieu_goc = 'clubs_data/' + id_clb_hien_tai + '/';
         
-        // khoi tao danh sach ban
         onValue(ref(co_so_du_lieu, nut_du_lieu_goc + 'danh_sach_ban'), (ket_qua) => {
             if (!ket_qua.exists()) {
                 let ban_mac_dinh = {};
@@ -337,7 +331,6 @@
             }
         });
 
-        // khoi tao gia tien gio
         onValue(ref(co_so_du_lieu, nut_du_lieu_goc + 'cai_dat/gia_tien_gio'), (ket_qua) => {
             if (ket_qua.exists()) {
                 gia_tien_mot_gio = ket_qua.val();
@@ -345,13 +338,11 @@
             }
         });
 
-        // khoi tao thuc don
         onValue(ref(co_so_du_lieu, nut_du_lieu_goc + 'thuc_don'), (ket_qua) => {
             danh_sach_thuc_don = ket_qua.exists() ? ket_qua.val() : {};
             hien_thi_thuc_don();
         });
 
-        // khoi tao lich su thong ke
         onValue(ref(co_so_du_lieu, nut_du_lieu_goc + 'lich_su_hoa_don'), (ket_qua) => {
             let tong_doanh_thu = 0;
             let html_thong_ke = '';
@@ -484,12 +475,34 @@
         if(ban.mon_da_goi) {
             for(let key in ban.mon_da_goi) {
                 let m = ban.mon_da_goi[key];
-                the_da_goi.innerHTML += `<li>${m.ten_mon} - SL: ${m.so_luong} x ${dinh_dang_tien(m.gia_mon)} VNĐ</li>`;
+                the_da_goi.innerHTML += `
+                    <li class="item-da-goi">
+                        <span>${m.ten_mon} - ${dinh_dang_tien(m.gia_mon)} VNĐ</span>
+                        <div>
+                            <button class="btn-sl" onclick="dieu_chinh_so_luong('${key}', -1)">-</button>
+                            <span class="so-luong-hien-thi">${m.so_luong}</span>
+                            <button class="btn-sl" onclick="dieu_chinh_so_luong('${key}', 1)">+</button>
+                        </div>
+                    </li>
+                `;
             }
         } else {
             the_da_goi.innerHTML = "<li>Chưa gọi món nào</li>";
         }
     }
+
+    // ham dieu chinh so luong mon da goi
+    window.dieu_chinh_so_luong = function(key_mon, thay_doi) {
+        let ds_hien_tai = danh_sach_ban[ban_dang_chon].mon_da_goi || {};
+        if(ds_hien_tai[key_mon]) {
+            ds_hien_tai[key_mon].so_luong += thay_doi;
+            if(ds_hien_tai[key_mon].so_luong <= 0) {
+                delete ds_hien_tai[key_mon]; // xoa khoi danh sach neu so luong ve 0 hoac be hon
+            }
+            update(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban/' + ban_dang_chon), { mon_da_goi: ds_hien_tai });
+            setTimeout(ve_mon_dang_choi, 200);
+        }
+    };
 
     window.them_vao_ban = function(ten, gia) {
         let ds_hien_tai = danh_sach_ban[ban_dang_chon].mon_da_goi || {};
