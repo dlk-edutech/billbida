@@ -5,105 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ Thống Quản Lý Câu Lạc Bộ Billard</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f7f6; }
+        /* reset va font chu co ban */
+        body { font-family: Arial, sans-serif; margin: 0; padding: 15px; background-color: #f4f7f6; }
         .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: #333; }
         
+        /* dang nhap */
         .login-box { max-width: 400px; margin: 50px auto; padding: 30px; background: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; }
         .login-box input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; text-align: center; font-size: 16px; letter-spacing: 2px; }
         .login-box button { width: 100%; padding: 10px; background: #2196F3; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
         .login-box button:hover { background: #0b7dda; }
 
+        /* admin panel */
         .admin-panel { display: none; }
-        .admin-form { display: flex; gap: 10px; margin-bottom: 20px; }
-        .admin-form input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        .admin-form button { padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .admin-form { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .admin-form input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1; min-width: 150px; }
+        .admin-form button { padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap; }
         .link-clb { font-size: 12px; color: #2196F3; word-break: break-all; }
 
+        /* giao dien chinh cua clb */
         #giao-dien-ung-dung { display: none; }
-        .tabs { display: flex; justify-content: center; margin-bottom: 20px; }
-        .tab-btn { padding: 10px 20px; margin: 0 5px; cursor: pointer; border: none; background: #e0e0e0; border-radius: 4px; font-weight: bold; }
+        .tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 10px; }
+        .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: #e0e0e0; border-radius: 4px; font-weight: bold; flex: 1; max-width: 200px; text-align: center; }
         .tab-btn.active { background: #4CAF50; color: white; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         
-        .grid-ban { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        /* hien thi danh sach ban */
+        .grid-ban { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
         .card-ban { padding: 15px; border: 1px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.3s; }
         .card-ban.trong { background-color: #e8f5e9; border-color: #4CAF50; }
         .card-ban.dang-choi { background-color: #ffebee; border-color: #f44336; }
         .card-ban:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         
+        /* form va bang bieu */
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { padding: 8px 15px; cursor: pointer; background: #2196F3; color: white; border: none; border-radius: 4px; }
+        .form-group input { padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        .flex-wrap { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .input-flex { flex: 2; min-width: 150px; }
+        .btn-flex { flex: 1; min-width: 120px; padding: 9px; }
+
+        button { padding: 8px 15px; cursor: pointer; background: #2196F3; color: white; border: none; border-radius: 4px; transition: background 0.2s; }
         button:hover { background: #0b7dda; }
         button.btn-huy { background: #9e9e9e; }
+        button.btn-huy:hover { background: #757575; }
         button.btn-ket-thuc { background: #f44336; }
+        button.btn-ket-thuc:hover { background: #d32f2f; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .table-responsive { width: 100%; overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
         table, th, td { border: 1px solid #ddd; }
         th, td { padding: 10px; text-align: left; }
         th { background-color: #f2f2f2; }
 
-        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 50%; max-width: 500px; border-radius: 8px; }
+        /* modal */
+        .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto; }
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .mon-phu-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-        .mon-phu-item { padding: 5px 10px; border: 1px solid #2196F3; border-radius: 4px; cursor: pointer; background: #e3f2fd; }
+        .mon-phu-item { padding: 8px 12px; border: 1px solid #2196F3; border-radius: 4px; cursor: pointer; background: #e3f2fd; font-size: 0.9em; }
+        .mon-phu-item:hover { background: #bbdefb; }
         
         .cai-dat-pin { background: #fff3e0; padding: 15px; border-radius: 8px; border: 1px solid #ffcc80; margin-bottom: 20px; }
 
+        /* danh sach mon da goi trong modal */
         #modal-mon-da-goi { list-style-type: none; padding: 0; }
-        .item-da-goi { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding: 8px; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; }
-        .btn-sl { padding: 2px 10px; margin: 0 5px; cursor: pointer; background: #e0e0e0; color: #333; border: none; border-radius: 4px; font-weight: bold; font-size: 16px;}
+        .item-da-goi { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 10px; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; flex-wrap: wrap; gap: 10px; }
+        .dieu-chinh-sl { display: flex; align-items: center; gap: 8px; }
+        .btn-sl { padding: 4px 12px; cursor: pointer; background: #e0e0e0; color: #333; border: none; border-radius: 4px; font-weight: bold; font-size: 16px; }
         .btn-sl:hover { background: #ccc; }
-        .so-luong-hien-thi { display: inline-block; width: 20px; text-align: center; font-weight: bold;}
+        .so-luong-hien-thi { width: 25px; text-align: center; font-weight: bold; }
 
-        /* css rieng cho phan chi tiet hoa don */
+        /* bill thanh toan */
         .bill-header { text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px; }
-        .bill-info p { margin: 5px 0; }
-        .bill-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        .bill-table th, .bill-table td { border: none; border-bottom: 1px solid #eee; padding: 8px 5px; }
+        .bill-info p { margin: 5px 0; font-size: 0.95em; }
+        .bill-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; min-width: unset; }
+        .bill-table th, .bill-table td { border: none; border-bottom: 1px solid #eee; padding: 8px 5px; font-size: 0.95em; }
         .bill-table th { background: transparent; font-weight: bold; border-bottom: 2px solid #ccc; }
         .bill-total { text-align: right; color: #f44336; border-top: 2px dashed #ccc; padding-top: 10px; font-size: 1.2em; }
-        .bill-actions { text-align: center; margin-top: 20px; }
+        .bill-actions { text-align: center; margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .bill-actions button { flex: 1; min-width: 120px; }
+
+        /* responsive tren thiet bi di dong */
+        @media (max-width: 600px) {
+            .tabs { flex-direction: column; }
+            .tab-btn { width: 100%; max-width: none; }
+            .grid-ban { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+            .flex-wrap { flex-direction: column; align-items: stretch; }
+            .input-flex, .btn-flex { width: 100%; flex: auto; }
+            .item-da-goi { flex-direction: column; align-items: flex-start; }
+            .dieu-chinh-sl { width: 100%; justify-content: space-between; margin-top: 5px; }
+            .modal-content { margin: 10% auto; padding: 15px; }
+        }
     </style>
 </head>
 <body>
 
+<!-- giao dien dang nhap quan tri -->
 <div id="giao-dien-dang-nhap-admin" class="login-box">
     <h2>Đăng Nhập Quản Trị Hệ Thống</h2>
     <input type="password" id="mat-khau-admin" placeholder="Nhập mã quản trị viên">
     <button onclick="kiem_tra_admin()">Đăng Nhập</button>
 </div>
 
+<!-- bang dieu khien cua admin -->
 <div id="giao-dien-quan-ly-admin" class="container admin-panel">
     <h1>Bảng Điều Khiển Hệ Thống</h1>
     <div class="admin-form">
-        <input type="text" id="ten-clb-moi" placeholder="Tên câu lạc bộ mới" style="flex: 2;">
-        <input type="text" id="ma-pin-moi" placeholder="Mã PIN (4 ký tự)" maxlength="4" style="flex: 1;">
+        <input type="text" id="ten-clb-moi" placeholder="Tên câu lạc bộ mới">
+        <input type="text" id="ma-pin-moi" placeholder="Mã PIN (4 ký tự)" maxlength="4">
         <button onclick="tao_cau_lac_bo_moi()">Tạo Câu Lạc Bộ</button>
     </div>
-    <table>
-        <thead>
-            <tr>
-                <th>Tên Câu Lạc Bộ</th>
-                <th>Mã PIN</th>
-                <th>Đường Link Riêng (Copy gửi cho quản lý)</th>
-                <th>Thao Tác</th>
-            </tr>
-        </thead>
-        <tbody id="danh-sach-clb-admin">
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tên Câu Lạc Bộ</th>
+                    <th>Mã PIN</th>
+                    <th>Đường Link Riêng</th>
+                    <th>Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody id="danh-sach-clb-admin">
+            </tbody>
+        </table>
+    </div>
 </div>
 
+<!-- giao dien dang nhap cau lac bo -->
 <div id="giao-dien-dang-nhap-clb" class="login-box" style="display: none;">
     <h2>Đăng Nhập: <span id="ten-clb-hien-thi">...</span></h2>
     <input type="password" id="ma-pin-dang-nhap" placeholder="Nhập mã PIN 4 ký tự" maxlength="4">
     <button onclick="kiem_tra_pin_clb()">Vào Hệ Thống</button>
 </div>
 
+<!-- ung dung quan ly chinh -->
 <div id="giao-dien-ung-dung" class="container">
     <h1 id="tieu-de-app-clb">Quản Lý Billard</h1>
     
@@ -113,73 +149,104 @@
         <button class="tab-btn" onclick="chuyen_tab('khu-vuc-thong-ke', this)">Thống Kê</button>
     </div>
 
+    <!-- tab ban choi -->
     <div id="khu-vuc-ban" class="tab-content active">
         <div class="grid-ban" id="danh-sach-ban-ui"></div>
     </div>
 
+    <!-- tab cai dat -->
     <div id="khu-vuc-cai-dat" class="tab-content">
         <div class="cai-dat-pin">
             <h3>Bảo Mật Câu Lạc Bộ</h3>
-            <div class="form-group">
-                <label>Đổi mã PIN đăng nhập mới (4 ký tự):</label>
-                <input type="text" id="doi-pin-input" placeholder="Ví dụ: 8888" maxlength="4" style="width: 200px; display: inline-block;">
-                <button onclick="doi_ma_pin_clb()">Cập Nhật Mã PIN</button>
+            <div class="form-group flex-wrap">
+                <input type="text" id="doi-pin-input" class="input-flex" placeholder="Nhập mã PIN mới (4 ký tự)" maxlength="4">
+                <button class="btn-flex" onclick="doi_ma_pin_clb()">Cập Nhật PIN</button>
             </div>
         </div>
 
         <h3>Cài Đặt Giá Giờ</h3>
-        <div class="form-group">
-            <label>Giá tiền mỗi giờ (VNĐ):</label>
-            <input type="number" id="gia-tien-gio-input" placeholder="Ví dụ: 50000" style="width: 200px; display: inline-block;">
-            <button onclick="luu_gia_tien_gio()">Cập Nhật</button>
+        <div class="form-group flex-wrap">
+            <input type="number" id="gia-tien-gio-input" class="input-flex" placeholder="Giá tiền mỗi giờ (VNĐ)">
+            <button class="btn-flex" onclick="luu_gia_tien_gio()">Cập Nhật Giá</button>
         </div>
         <hr>
-        <h3>Quản Lý Thực Đơn (Món Bán Kèm)</h3>
-        <div class="form-group">
-            <input type="text" id="ten-mon-input" placeholder="Tên món (VD: Nước ngọt)" style="width: 40%; display: inline-block;">
-            <input type="number" id="gia-mon-input" placeholder="Giá tiền (VNĐ)" style="width: 30%; display: inline-block;">
-            <button onclick="them_mon_phu()">Thêm Món</button>
+        
+        <h3>Quản Lý Bàn Chơi</h3>
+        <div class="form-group flex-wrap">
+            <input type="text" id="ten-ban-input" class="input-flex" placeholder="Tên bàn mới (VD: Bàn VIP 1)">
+            <button class="btn-flex" onclick="them_ban_moi()">Thêm Bàn</button>
         </div>
-        <table id="bang-thuc-don">
-            <thead><tr><th>Tên Món</th><th>Giá Tiền</th><th>Thao Tác</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <div class="table-responsive" style="margin-bottom: 20px;">
+            <table id="bang-quan-ly-ban">
+                <thead><tr><th>Tên Bàn</th><th>Trạng Thái</th><th>Thao Tác</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <hr>
+
+        <h3>Quản Lý Thực Đơn (Món Bán Kèm)</h3>
+        <div class="form-group flex-wrap">
+            <input type="text" id="ten-mon-input" class="input-flex" placeholder="Tên món (VD: Nước ngọt)">
+            <input type="number" id="gia-mon-input" class="input-flex" placeholder="Giá tiền (VNĐ)">
+            <button class="btn-flex" onclick="them_mon_phu()">Thêm Món</button>
+        </div>
+        <div class="table-responsive">
+            <table id="bang-thuc-don">
+                <thead><tr><th>Tên Món</th><th>Giá Tiền</th><th>Thao Tác</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
+    <!-- tab thong ke -->
     <div id="khu-vuc-thong-ke" class="tab-content">
         <h3>Lịch Sử Hóa Đơn</h3>
-        <p>Tổng doanh thu: <strong id="tong-doanh-thu-ui">0 VNĐ</strong></p>
-        <table id="bang-thong-ke">
-            <thead><tr><th>Thời Gian</th><th>Bàn</th><th>Tiền Giờ</th><th>Tiền Dịch Vụ</th><th>Tổng Cộng</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <p style="font-size: 1.1em;">Tổng doanh thu: <strong id="tong-doanh-thu-ui" style="color: #f44336;">0 VNĐ</strong></p>
+        <div class="table-responsive">
+            <table id="bang-thong-ke">
+                <thead><tr><th>Thời Gian</th><th>Bàn</th><th>Tiền Giờ</th><th>Tiền Dịch Vụ</th><th>Tổng Cộng</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
+<!-- modal quan ly tung ban -->
 <div id="modal-ban" class="modal">
     <div class="modal-content">
-        <div id="khu-vuc-bat-dau" style="display: none;">
+        <!-- trang thai ban trong -->
+        <div id="khu-vuc-bat-dau" style="display: none; text-align: center;">
             <h2 id="modal-tieu-de-ban-trong">Bàn</h2>
             <p>Bàn hiện đang trống.</p>
-            <button onclick="bat_dau_ban()">Bắt Đầu Chơi</button>
-            <button class="btn-huy" onclick="dong_modal()">Đóng</button>
+            <br>
+            <div class="bill-actions">
+                <button onclick="bat_dau_ban()">Bắt Đầu Chơi</button>
+                <button class="btn-huy" onclick="dong_modal()">Đóng</button>
+            </div>
         </div>
         
+        <!-- trang thai dang choi -->
         <div id="khu-vuc-dang-choi" style="display: none;">
-            <h2 id="modal-tieu-de-ban-choi">Bàn</h2>
+            <h2 id="modal-tieu-de-ban-choi" style="text-align: center; margin-top: 0;">Bàn</h2>
             <p>Thời gian bắt đầu: <strong id="modal-thoi-gian-bat-dau"></strong></p>
+            
             <h4>Thêm Món Dịch Vụ:</h4>
             <div class="mon-phu-list" id="modal-danh-sach-mon"></div>
+            
             <h4>Đã Gọi (Có thể điều chỉnh số lượng):</h4>
             <ul id="modal-mon-da-goi"></ul>
-            <hr>
-            <button class="btn-ket-thuc" onclick="hien_thi_hoa_don()">Kết Thúc & Tính Tiền</button>
-            <button class="btn-huy" onclick="dong_modal()">Đóng</button>
+            
+            <hr style="margin: 20px 0;">
+            <div class="bill-actions">
+                <button class="btn-ket-thuc" onclick="hien_thi_hoa_don()">Kết Thúc & Tính Tiền</button>
+                <button class="btn-huy" onclick="dong_modal()">Đóng</button>
+            </div>
         </div>
 
+        <!-- trang thai thanh toan (bill) -->
         <div id="khu-vuc-hoa-don" style="display: none;">
             <div class="bill-header">
-                <h2>HÓA ĐƠN THANH TOÁN</h2>
+                <h2 style="margin: 0;">HÓA ĐƠN THANH TOÁN</h2>
             </div>
             <div class="bill-info">
                 <p><strong>Bàn:</strong> <span id="bill-ten-ban"></span></p>
@@ -197,14 +264,14 @@
                     </tr>
                 </thead>
                 <tbody id="bill-chi-tiet-khoan">
-                    <!-- render chi tiet tien gio va tien mon bang js -->
+                    <!-- render bang javascript -->
                 </tbody>
             </table>
 
             <h3 class="bill-total">Tổng thanh toán: <span id="bill-tong-tien"></span> VNĐ</h3>
             
             <div class="bill-actions">
-                <button onclick="thanh_toan_hoa_don()">Xác Nhận Thanh Toán</button>
+                <button onclick="thanh_toan_hoa_don()">Xác Nhận</button>
                 <button class="btn-huy" onclick="dong_modal()">Hủy Bỏ</button>
             </div>
         </div>
@@ -229,7 +296,7 @@
     const ung_dung = initializeApp(cau_hinh_firebase);
     const co_so_du_lieu = getDatabase(ung_dung);
 
-    // cac bien luu tru trang thai he thong
+    // bien he thong
     let id_clb_hien_tai = null;
     let thong_tin_clb_hien_tai = null;
     let gia_tien_mot_gio = 50000;
@@ -237,13 +304,12 @@
     let danh_sach_thuc_don = {};
     let ban_dang_chon = null;
 
-    // kiem tra xem co id clb tren trinh duyet khong
+    // kiem tra duong dan web
     const tham_so_url = new URLSearchParams(window.location.search);
     const kiem_tra_clb = tham_so_url.get('club');
 
     if (kiem_tra_clb) {
         document.getElementById('giao-dien-dang-nhap-admin').style.display = 'none';
-        
         get(ref(co_so_du_lieu, 'admin_clubs/' + kiem_tra_clb)).then((ket_qua) => {
             if (ket_qua.exists()) {
                 thong_tin_clb_hien_tai = ket_qua.val();
@@ -257,7 +323,7 @@
         });
     }
 
-    // logic cua admin he thong
+    // quan tri admin
     window.kiem_tra_admin = function() {
         const mat_khau = document.getElementById('mat-khau-admin').value;
         if (mat_khau === '11043006') {
@@ -270,20 +336,19 @@
     };
 
     function tai_danh_sach_clb() {
-        const tham_chieu_admin = ref(co_so_du_lieu, 'admin_clubs');
-        onValue(tham_chieu_admin, (ket_qua) => {
-            const khung_danh_sach = document.getElementById('danh-sach-clb-admin');
-            khung_danh_sach.innerHTML = '';
+        onValue(ref(co_so_du_lieu, 'admin_clubs'), (ket_qua) => {
+            const khung_ds = document.getElementById('danh-sach-clb-admin');
+            khung_ds.innerHTML = '';
             if (ket_qua.exists()) {
                 const du_lieu = ket_qua.val();
                 for (let ma_clb in du_lieu) {
                     let clb = du_lieu[ma_clb];
-                    let link_truy_cap = window.location.origin + window.location.pathname + '?club=' + ma_clb;
-                    khung_danh_sach.innerHTML += `
+                    let link_web = window.location.origin + window.location.pathname + '?club=' + ma_clb;
+                    khung_ds.innerHTML += `
                         <tr>
                             <td><strong>${clb.ten_clb}</strong></td>
                             <td>${clb.ma_pin}</td>
-                            <td><a href="${link_truy_cap}" target="_blank" class="link-clb">${link_truy_cap}</a></td>
+                            <td><a href="${link_web}" target="_blank" class="link-clb">${link_web}</a></td>
                             <td><button class="btn-huy" onclick="xoa_clb('${ma_clb}')">Xóa</button></td>
                         </tr>
                     `;
@@ -299,29 +364,23 @@
             alert("Vui lòng nhập tên và mã PIN đúng 4 ký tự!");
             return;
         }
-        
-        const ma_id_moi = 'clb_' + new Date().getTime();
-        set(ref(co_so_du_lieu, 'admin_clubs/' + ma_id_moi), {
-            id: ma_id_moi,
-            ten_clb: ten,
-            ma_pin: pin
-        });
+        const ma_id = 'clb_' + new Date().getTime();
+        set(ref(co_so_du_lieu, 'admin_clubs/' + ma_id), { id: ma_id, ten_clb: ten, ma_pin: pin });
         document.getElementById('ten-clb-moi').value = '';
         document.getElementById('ma-pin-moi').value = '';
         alert("Tạo câu lạc bộ thành công!");
     };
 
     window.xoa_clb = function(ma_clb) {
-        if(confirm("Xóa câu lạc bộ sẽ xóa toàn bộ dữ liệu của họ. Chắc chắn xóa?")) {
+        if(confirm("Xóa câu lạc bộ sẽ xóa toàn bộ dữ liệu. Tiếp tục?")) {
             remove(ref(co_so_du_lieu, 'admin_clubs/' + ma_clb));
             remove(ref(co_so_du_lieu, 'clubs_data/' + ma_clb));
         }
     };
 
-    // logic cua quan ly cau lac bo
+    // he thong cau lac bo
     window.kiem_tra_pin_clb = function() {
-        const pin_nhap = document.getElementById('ma-pin-dang-nhap').value;
-        if (pin_nhap === thong_tin_clb_hien_tai.ma_pin) {
+        if (document.getElementById('ma-pin-dang-nhap').value === thong_tin_clb_hien_tai.ma_pin) {
             document.getElementById('giao-dien-dang-nhap-clb').style.display = 'none';
             document.getElementById('giao-dien-ung-dung').style.display = 'block';
             khoi_tao_ung_dung_clb();
@@ -333,60 +392,57 @@
     window.doi_ma_pin_clb = function() {
         const pin_moi = document.getElementById('doi-pin-input').value;
         if(pin_moi.length === 4) {
-            update(ref(co_so_du_lieu, 'admin_clubs/' + id_clb_hien_tai), {
-                ma_pin: pin_moi
-            });
+            update(ref(co_so_du_lieu, 'admin_clubs/' + id_clb_hien_tai), { ma_pin: pin_moi });
             thong_tin_clb_hien_tai.ma_pin = pin_moi;
             document.getElementById('doi-pin-input').value = '';
-            alert("Đã đổi mã PIN thành công! Hãy nhớ mã mới nhé.");
+            alert("Đổi mã PIN thành công!");
         } else {
             alert("Mã PIN phải có đúng 4 ký tự!");
         }
     }
 
     function khoi_tao_ung_dung_clb() {
-        const nut_du_lieu_goc = 'clubs_data/' + id_clb_hien_tai + '/';
+        const nut_du_lieu = 'clubs_data/' + id_clb_hien_tai + '/';
         
-        onValue(ref(co_so_du_lieu, nut_du_lieu_goc + 'danh_sach_ban'), (ket_qua) => {
+        onValue(ref(co_so_du_lieu, nut_du_lieu + 'danh_sach_ban'), (ket_qua) => {
             if (!ket_qua.exists()) {
-                let ban_mac_dinh = {};
+                let ban_mau = {};
                 for(let i = 1; i <= 10; i++) {
-                    ban_mac_dinh['ban_' + i] = {
-                        ten_ban: 'Bàn ' + i, trang_thai: 'trong', thoi_gian_bat_dau: null, mon_da_goi: {}
-                    };
+                    ban_mau['ban_' + i] = { ten_ban: 'Bàn ' + i, trang_thai: 'trong', thoi_gian_bat_dau: null, mon_da_goi: {} };
                 }
-                set(ref(co_so_du_lieu, nut_du_lieu_goc + 'danh_sach_ban'), ban_mac_dinh);
+                set(ref(co_so_du_lieu, nut_du_lieu + 'danh_sach_ban'), ban_mau);
             } else {
                 danh_sach_ban = ket_qua.val();
                 hien_thi_giao_dien_ban();
+                hien_thi_quan_ly_ban();
             }
         });
 
-        onValue(ref(co_so_du_lieu, nut_du_lieu_goc + 'cai_dat/gia_tien_gio'), (ket_qua) => {
+        onValue(ref(co_so_du_lieu, nut_du_lieu + 'cai_dat/gia_tien_gio'), (ket_qua) => {
             if (ket_qua.exists()) {
                 gia_tien_mot_gio = ket_qua.val();
                 document.getElementById('gia-tien-gio-input').value = gia_tien_mot_gio;
             }
         });
 
-        onValue(ref(co_so_du_lieu, nut_du_lieu_goc + 'thuc_don'), (ket_qua) => {
+        onValue(ref(co_so_du_lieu, nut_du_lieu + 'thuc_don'), (ket_qua) => {
             danh_sach_thuc_don = ket_qua.exists() ? ket_qua.val() : {};
             hien_thi_thuc_don();
         });
 
-        onValue(ref(co_so_du_lieu, nut_du_lieu_goc + 'lich_su_hoa_don'), (ket_qua) => {
+        onValue(ref(co_so_du_lieu, nut_du_lieu + 'lich_su_hoa_don'), (ket_qua) => {
             let tong_doanh_thu = 0;
             let html_thong_ke = '';
             if (ket_qua.exists()) {
                 const lich_su = ket_qua.val();
                 for (let ma_don in lich_su) {
-                    let don_hang = lich_su[ma_don];
-                    tong_doanh_thu += don_hang.tong_tien;
-                    let thoi_gian = new Date(don_hang.thoi_gian_thanh_toan).toLocaleString('vi-VN');
+                    let don = lich_su[ma_don];
+                    tong_doanh_thu += don.tong_tien;
+                    let tg = new Date(don.thoi_gian_thanh_toan).toLocaleString('vi-VN');
                     html_thong_ke += `<tr>
-                        <td>${thoi_gian}</td><td>${don_hang.ten_ban}</td>
-                        <td>${dinh_dang_tien(don_hang.tien_gio)}</td><td>${dinh_dang_tien(don_hang.tien_dich_vu)}</td>
-                        <td><strong>${dinh_dang_tien(don_hang.tong_tien)}</strong></td>
+                        <td>${tg}</td><td>${don.ten_ban}</td>
+                        <td>${dinh_dang_tien(don.tien_gio)}</td><td>${dinh_dang_tien(don.tien_dich_vu)}</td>
+                        <td><strong>${dinh_dang_tien(don.tong_tien)}</strong></td>
                     </tr>`;
                 }
             }
@@ -395,49 +451,86 @@
         });
     }
 
-    // cac ham giao dien chung cua app
-    window.chuyen_tab = function(id_tab, nut_bam) {
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    window.chuyen_tab = function(id_tab, nut) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id_tab).classList.add('active');
-        nut_bam.classList.add('active');
+        nut.classList.add('active');
     };
 
-    window.dinh_dang_tien = function(so_tien) {
-        return Math.round(so_tien).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    window.dinh_dang_tien = function(tien) {
+        return Math.round(tien).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     };
 
     function hien_thi_giao_dien_ban() {
-        const khu_vuc_ban = document.getElementById('danh-sach-ban-ui');
-        khu_vuc_ban.innerHTML = '';
-        for (let ma_ban in danh_sach_ban) {
-            let ban = danh_sach_ban[ma_ban];
-            let kieu_trang_thai = ban.trang_thai === 'trong' ? 'trong' : 'dang-choi';
-            let chu_trang_thai = ban.trang_thai === 'trong' ? 'Trống' : 'Đang chơi';
-            khu_vuc_ban.innerHTML += `
-                <div class="card-ban ${kieu_trang_thai}" onclick="mo_modal_ban('${ma_ban}')">
-                    <h3>${ban.ten_ban}</h3><p>${chu_trang_thai}</p>
+        const khu_vuc = document.getElementById('danh-sach-ban-ui');
+        khu_vuc.innerHTML = '';
+        for (let ma in danh_sach_ban) {
+            let b = danh_sach_ban[ma];
+            let class_tt = b.trang_thai === 'trong' ? 'trong' : 'dang-choi';
+            let chu_tt = b.trang_thai === 'trong' ? 'Trống' : 'Đang chơi';
+            khu_vuc.innerHTML += `
+                <div class="card-ban ${class_tt}" onclick="mo_modal_ban('${ma}')">
+                    <h3>${b.ten_ban}</h3><p>${chu_tt}</p>
                 </div>
             `;
         }
     }
 
+    // quan ly tang giam ban
+    function hien_thi_quan_ly_ban() {
+        const bang_ban = document.getElementById('bang-quan-ly-ban').getElementsByTagName('tbody')[0];
+        bang_ban.innerHTML = '';
+        for (let ma in danh_sach_ban) {
+            let b = danh_sach_ban[ma];
+            let tt = b.trang_thai === 'trong' ? 'Trống' : 'Đang chơi';
+            bang_ban.innerHTML += `<tr>
+                <td>${b.ten_ban}</td><td>${tt}</td>
+                <td><button class="btn-huy" onclick="xoa_ban('${ma}')">Xóa</button></td>
+            </tr>`;
+        }
+    }
+
+    window.them_ban_moi = function() {
+        const ten = document.getElementById('ten-ban-input').value;
+        if (ten) {
+            push(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban'), {
+                ten_ban: ten, trang_thai: 'trong', thoi_gian_bat_dau: null, mon_da_goi: {}
+            });
+            document.getElementById('ten-ban-input').value = '';
+            alert("Thêm bàn thành công!");
+        } else {
+            alert("Vui lòng nhập tên bàn!");
+        }
+    };
+
+    window.xoa_ban = function(ma) {
+        if (danh_sach_ban[ma].trang_thai === 'dang_choi') {
+            alert("Không thể xóa bàn đang có khách chơi!");
+            return;
+        }
+        if (confirm("Chắc chắn xóa bàn này?")) {
+            remove(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban/' + ma));
+        }
+    };
+
+    // quan ly thuc don va gia
     function hien_thi_thuc_don() {
         const bang = document.getElementById('bang-thuc-don').getElementsByTagName('tbody')[0];
         bang.innerHTML = '';
-        for (let ma_mon in danh_sach_thuc_don) {
-            let mon = danh_sach_thuc_don[ma_mon];
+        for (let ma in danh_sach_thuc_don) {
+            let mon = danh_sach_thuc_don[ma];
             bang.innerHTML += `<tr>
                 <td>${mon.ten_mon}</td><td>${dinh_dang_tien(mon.gia_mon)} VNĐ</td>
-                <td><button class="btn-huy" onclick="xoa_mon_phu('${ma_mon}')">Xóa</button></td>
+                <td><button class="btn-huy" onclick="xoa_mon_phu('${ma}')">Xóa</button></td>
             </tr>`;
         }
     }
 
     window.luu_gia_tien_gio = function() {
-        const gia_moi = parseInt(document.getElementById('gia-tien-gio-input').value);
-        if(gia_moi > 0) {
-            set(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/cai_dat/gia_tien_gio'), gia_moi);
+        const gia = parseInt(document.getElementById('gia-tien-gio-input').value);
+        if(gia > 0) {
+            set(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/cai_dat/gia_tien_gio'), gia);
             alert("Cập nhật thành công!");
         }
     };
@@ -446,36 +539,34 @@
         const ten = document.getElementById('ten-mon-input').value;
         const gia = parseInt(document.getElementById('gia-mon-input').value);
         if(ten && gia > 0) {
-            const vi_tri_moi = push(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/thuc_don'));
-            set(vi_tri_moi, { ten_mon: ten, gia_mon: gia });
+            push(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/thuc_don'), { ten_mon: ten, gia_mon: gia });
             document.getElementById('ten-mon-input').value = '';
             document.getElementById('gia-mon-input').value = '';
         }
     };
 
-    window.xoa_mon_phu = function(ma_mon) {
-        if(confirm("Xóa món này khỏi thực đơn?")) {
-            remove(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/thuc_don/' + ma_mon));
-        }
+    window.xoa_mon_phu = function(ma) {
+        if(confirm("Xóa món này?")) remove(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/thuc_don/' + ma));
     };
 
-    window.mo_modal_ban = function(ma_ban) {
-        ban_dang_chon = ma_ban;
-        let ban = danh_sach_ban[ma_ban];
+    // chuc nang ban
+    window.mo_modal_ban = function(ma) {
+        ban_dang_chon = ma;
+        let b = danh_sach_ban[ma];
         
-        document.getElementById('modal-tieu-de-ban-trong').innerText = ban.ten_ban;
-        document.getElementById('modal-tieu-de-ban-choi').innerText = ban.ten_ban;
+        document.getElementById('modal-tieu-de-ban-trong').innerText = b.ten_ban;
+        document.getElementById('modal-tieu-de-ban-choi').innerText = b.ten_ban;
         document.getElementById('modal-ban').style.display = 'block';
         
         document.getElementById('khu-vuc-bat-dau').style.display = 'none';
         document.getElementById('khu-vuc-dang-choi').style.display = 'none';
         document.getElementById('khu-vuc-hoa-don').style.display = 'none';
 
-        if(ban.trang_thai === 'trong') {
+        if(b.trang_thai === 'trong') {
             document.getElementById('khu-vuc-bat-dau').style.display = 'block';
         } else {
             document.getElementById('khu-vuc-dang-choi').style.display = 'block';
-            document.getElementById('modal-thoi-gian-bat-dau').innerText = new Date(ban.thoi_gian_bat_dau).toLocaleTimeString('vi-VN');
+            document.getElementById('modal-thoi-gian-bat-dau').innerText = new Date(b.thoi_gian_bat_dau).toLocaleTimeString('vi-VN');
             ve_mon_dang_choi();
         }
     };
@@ -487,34 +578,32 @@
 
     window.bat_dau_ban = function() {
         update(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban/' + ban_dang_chon), {
-            trang_thai: 'dang_choi',
-            thoi_gian_bat_dau: new Date().getTime(),
-            mon_da_goi: {}
+            trang_thai: 'dang_choi', thoi_gian_bat_dau: new Date().getTime(), mon_da_goi: {}
         });
         dong_modal();
     };
 
     function ve_mon_dang_choi() {
-        let the_hien_thi_mon = document.getElementById('modal-danh-sach-mon');
-        the_hien_thi_mon.innerHTML = '';
-        for(let ma_mon in danh_sach_thuc_don) {
-            let mon = danh_sach_thuc_don[ma_mon];
-            the_hien_thi_mon.innerHTML += `<div class="mon-phu-item" onclick="them_vao_ban('${mon.ten_mon}', ${mon.gia_mon})">${mon.ten_mon} (+${dinh_dang_tien(mon.gia_mon)})</div>`;
+        let the_mon = document.getElementById('modal-danh-sach-mon');
+        the_mon.innerHTML = '';
+        for(let ma in danh_sach_thuc_don) {
+            let m = danh_sach_thuc_don[ma];
+            the_mon.innerHTML += `<div class="mon-phu-item" onclick="them_vao_ban('${m.ten_mon}', ${m.gia_mon})">${m.ten_mon} (+${dinh_dang_tien(m.gia_mon)})</div>`;
         }
 
-        let ban = danh_sach_ban[ban_dang_chon];
+        let b = danh_sach_ban[ban_dang_chon];
         let the_da_goi = document.getElementById('modal-mon-da-goi');
         the_da_goi.innerHTML = '';
-        if(ban.mon_da_goi) {
-            for(let key in ban.mon_da_goi) {
-                let m = ban.mon_da_goi[key];
+        if(b.mon_da_goi) {
+            for(let k in b.mon_da_goi) {
+                let item = b.mon_da_goi[k];
                 the_da_goi.innerHTML += `
                     <li class="item-da-goi">
-                        <span>${m.ten_mon} - ${dinh_dang_tien(m.gia_mon)} VNĐ</span>
-                        <div>
-                            <button class="btn-sl" onclick="dieu_chinh_so_luong('${key}', -1)">-</button>
-                            <span class="so-luong-hien-thi">${m.so_luong}</span>
-                            <button class="btn-sl" onclick="dieu_chinh_so_luong('${key}', 1)">+</button>
+                        <span>${item.ten_mon} - ${dinh_dang_tien(item.gia_mon)} VNĐ</span>
+                        <div class="dieu-chinh-sl">
+                            <button class="btn-sl" onclick="dieu_chinh_so_luong('${k}', -1)">-</button>
+                            <span class="so-luong-hien-thi">${item.so_luong}</span>
+                            <button class="btn-sl" onclick="dieu_chinh_so_luong('${k}', 1)">+</button>
                         </div>
                     </li>
                 `;
@@ -524,98 +613,91 @@
         }
     }
 
-    // ham dieu chinh so luong mon da goi
-    window.dieu_chinh_so_luong = function(key_mon, thay_doi) {
-        let ds_hien_tai = danh_sach_ban[ban_dang_chon].mon_da_goi || {};
-        if(ds_hien_tai[key_mon]) {
-            ds_hien_tai[key_mon].so_luong += thay_doi;
-            if(ds_hien_tai[key_mon].so_luong <= 0) {
-                delete ds_hien_tai[key_mon];
-            }
-            update(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban/' + ban_dang_chon), { mon_da_goi: ds_hien_tai });
+    window.dieu_chinh_so_luong = function(khoa, thay_doi) {
+        let ds = danh_sach_ban[ban_dang_chon].mon_da_goi || {};
+        if(ds[khoa]) {
+            ds[khoa].so_luong += thay_doi;
+            if(ds[khoa].so_luong <= 0) delete ds[khoa];
+            update(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban/' + ban_dang_chon), { mon_da_goi: ds });
             setTimeout(ve_mon_dang_choi, 200);
         }
     };
 
     window.them_vao_ban = function(ten, gia) {
-        let ds_hien_tai = danh_sach_ban[ban_dang_chon].mon_da_goi || {};
-        let da_ton_tai = false;
-        for(let key in ds_hien_tai) {
-            if(ds_hien_tai[key].ten_mon === ten) {
-                ds_hien_tai[key].so_luong += 1;
-                da_ton_tai = true; break;
+        let ds = danh_sach_ban[ban_dang_chon].mon_da_goi || {};
+        let da_co = false;
+        for(let k in ds) {
+            if(ds[k].ten_mon === ten) {
+                ds[k].so_luong += 1;
+                da_co = true; break;
             }
         }
-        if(!da_ton_tai) {
-            ds_hien_tai['mon_' + new Date().getTime()] = { ten_mon: ten, gia_mon: gia, so_luong: 1 };
-        }
-        update(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban/' + ban_dang_chon), { mon_da_goi: ds_hien_tai });
+        if(!da_co) ds['mon_' + new Date().getTime()] = { ten_mon: ten, gia_mon: gia, so_luong: 1 };
+        update(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban/' + ban_dang_chon), { mon_da_goi: ds });
         setTimeout(ve_mon_dang_choi, 200);
     };
 
-    // ham xuat chi tiet hoa don de thanh toan
+    // xu ly thanh toan
     window.hien_thi_hoa_don = function() {
         document.getElementById('khu-vuc-dang-choi').style.display = 'none';
         document.getElementById('khu-vuc-hoa-don').style.display = 'block';
         
-        let ban = danh_sach_ban[ban_dang_chon];
-        let thoi_gian_ket_thuc = new Date().getTime();
-        let thoi_gian_choi = thoi_gian_ket_thuc - ban.thoi_gian_bat_dau;
+        let b = danh_sach_ban[ban_dang_chon];
+        let ket_thuc = new Date().getTime();
+        let tg_choi = ket_thuc - b.thoi_gian_bat_dau;
         
-        let so_phut = Math.ceil(thoi_gian_choi / 60000);
-        let tien_gio = (so_phut / 60) * gia_tien_mot_gio;
+        let phut = Math.ceil(tg_choi / 60000);
+        let tien_g = (phut / 60) * gia_tien_mot_gio;
         
-        // dien thong tin chung cua bill
-        document.getElementById('bill-ten-ban').innerText = ban.ten_ban;
-        document.getElementById('bill-gio-vao').innerText = new Date(ban.thoi_gian_bat_dau).toLocaleTimeString('vi-VN');
-        document.getElementById('bill-gio-ra').innerText = new Date(thoi_gian_ket_thuc).toLocaleTimeString('vi-VN');
-        document.getElementById('bill-thoi-gian').innerText = `${so_phut} phút`;
+        document.getElementById('bill-ten-ban').innerText = b.ten_ban;
+        document.getElementById('bill-gio-vao').innerText = new Date(b.thoi_gian_bat_dau).toLocaleTimeString('vi-VN');
+        document.getElementById('bill-gio-ra').innerText = new Date(ket_thuc).toLocaleTimeString('vi-VN');
+        document.getElementById('bill-thoi-gian').innerText = `${phut} phút`;
         
         let tien_dv = 0;
-        let html_chi_tiet_khoan = `
+        let html_khoan = `
             <tr>
-                <td>Tiền giờ (${so_phut} phút)</td>
+                <td>Tiền giờ (${phut} phút)</td>
                 <td style="text-align: center;">-</td>
-                <td style="text-align: right;">${dinh_dang_tien(tien_gio)}</td>
+                <td style="text-align: right;">${dinh_dang_tien(tien_g)}</td>
             </tr>
         `;
 
-        // xu ly chi tiet tung mon phu da goi
-        if(ban.mon_da_goi) {
-            for(let k in ban.mon_da_goi) {
-                let m = ban.mon_da_goi[k];
-                let thanh_tien_mon = m.gia_mon * m.so_luong;
-                tien_dv += thanh_tien_mon;
-                html_chi_tiet_khoan += `
+        if(b.mon_da_goi) {
+            for(let k in b.mon_da_goi) {
+                let m = b.mon_da_goi[k];
+                let thanh_tien = m.gia_mon * m.so_luong;
+                tien_dv += thanh_tien;
+                html_khoan += `
                     <tr>
-                        <td>${m.ten_mon} (Đơn giá: ${dinh_dang_tien(m.gia_mon)})</td>
+                        <td>${m.ten_mon} (Giá: ${dinh_dang_tien(m.gia_mon)})</td>
                         <td style="text-align: center;">${m.so_luong}</td>
-                        <td style="text-align: right;">${dinh_dang_tien(thanh_tien_mon)}</td>
+                        <td style="text-align: right;">${dinh_dang_tien(thanh_tien)}</td>
                     </tr>
                 `;
             }
         }
 
-        document.getElementById('bill-chi-tiet-khoan').innerHTML = html_chi_tiet_khoan;
-        document.getElementById('bill-tong-tien').innerText = dinh_dang_tien(tien_gio + tien_dv);
+        document.getElementById('bill-chi-tiet-khoan').innerHTML = html_khoan;
+        document.getElementById('bill-tong-tien').innerText = dinh_dang_tien(tien_g + tien_dv);
         
-        document.getElementById('modal-ban').dataset.tienGio = tien_gio;
+        document.getElementById('modal-ban').dataset.tienGio = tien_g;
         document.getElementById('modal-ban').dataset.tienDichVu = tien_dv;
-        document.getElementById('modal-ban').dataset.tongCong = tien_gio + tien_dv;
+        document.getElementById('modal-ban').dataset.tongCong = tien_g + tien_dv;
     };
 
     window.thanh_toan_hoa_don = function() {
-        let ban = danh_sach_ban[ban_dang_chon];
+        let b = danh_sach_ban[ban_dang_chon];
         
-        const don_hang_moi = push(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/lich_su_hoa_don'));
-        set(don_hang_moi, {
-            ten_ban: ban.ten_ban,
-            thoi_gian_bat_dau: ban.thoi_gian_bat_dau,
+        const don_moi = push(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/lich_su_hoa_don'));
+        set(don_moi, {
+            ten_ban: b.ten_ban,
+            thoi_gian_bat_dau: b.thoi_gian_bat_dau,
             thoi_gian_thanh_toan: new Date().getTime(),
             tien_gio: parseFloat(document.getElementById('modal-ban').dataset.tienGio),
             tien_dich_vu: parseFloat(document.getElementById('modal-ban').dataset.tienDichVu),
             tong_tien: parseFloat(document.getElementById('modal-ban').dataset.tongCong),
-            chi_tiet_mon: ban.mon_da_goi || {}
+            chi_tiet_mon: b.mon_da_goi || {}
         });
 
         update(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban/' + ban_dang_chon), {
@@ -623,7 +705,7 @@
         });
 
         dong_modal();
-        alert("Thanh toán hoàn tất!");
+        alert("Thanh toán thành công!");
     };
 </script>
 </body>
