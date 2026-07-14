@@ -6,7 +6,8 @@
     <title>Hệ Thống Quản Lý Câu Lạc Bộ Billard</title>
     <style>
         /* reset va font chu co ban */
-        body { font-family: Arial, sans-serif; margin: 0; padding: 15px; background-color: #f4f7f6; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 15px; background-color: #f4f7f6; display: flex; flex-direction: column; min-height: 100vh; }
+        .main-content { flex: 1; }
         .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: #333; }
         
@@ -88,6 +89,9 @@
         .bill-actions { text-align: center; margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
         .bill-actions button { flex: 1; min-width: 120px; }
 
+        /* footer */
+        .app-footer { text-align: center; padding: 20px 10px; font-size: 0.9em; color: #7f8c8d; margin-top: 20px; }
+
         /* responsive tren thiet bi di dong */
         @media (max-width: 600px) {
             .tabs { flex-direction: column; }
@@ -103,116 +107,123 @@
 </head>
 <body>
 
-<!-- giao dien dang nhap quan tri -->
-<div id="giao-dien-dang-nhap-admin" class="login-box">
-    <h2>Đăng Nhập Quản Trị Hệ Thống</h2>
-    <input type="password" id="mat-khau-admin" placeholder="Nhập mã quản trị viên">
-    <button onclick="kiem_tra_admin()">Đăng Nhập</button>
-</div>
-
-<!-- bang dieu khien cua admin -->
-<div id="giao-dien-quan-ly-admin" class="container admin-panel">
-    <h1>Bảng Điều Khiển Hệ Thống</h1>
-    <div class="admin-form">
-        <input type="text" id="ten-clb-moi" placeholder="Tên câu lạc bộ mới">
-        <input type="text" id="ma-pin-moi" placeholder="Mã PIN (4 ký tự)" maxlength="4">
-        <button onclick="tao_cau_lac_bo_moi()">Tạo Câu Lạc Bộ</button>
-    </div>
-    <div class="table-responsive">
-        <table>
-            <thead>
-                <tr>
-                    <th>Tên Câu Lạc Bộ</th>
-                    <th>Mã PIN</th>
-                    <th>Đường Link Riêng</th>
-                    <th>Thao Tác</th>
-                </tr>
-            </thead>
-            <tbody id="danh-sach-clb-admin">
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- giao dien dang nhap cau lac bo -->
-<div id="giao-dien-dang-nhap-clb" class="login-box" style="display: none;">
-    <h2>Đăng Nhập: <span id="ten-clb-hien-thi">...</span></h2>
-    <input type="password" id="ma-pin-dang-nhap" placeholder="Nhập mã PIN 4 ký tự" maxlength="4">
-    <button onclick="kiem_tra_pin_clb()">Vào Hệ Thống</button>
-</div>
-
-<!-- ung dung quan ly chinh -->
-<div id="giao-dien-ung-dung" class="container">
-    <h1 id="tieu-de-app-clb">Quản Lý Billard</h1>
-    
-    <div class="tabs">
-        <button class="tab-btn active" onclick="chuyen_tab('khu-vuc-ban', this)">Bàn Chơi</button>
-        <button class="tab-btn" onclick="chuyen_tab('khu-vuc-cai-dat', this)">Cài Đặt & Thực Đơn</button>
-        <button class="tab-btn" onclick="chuyen_tab('khu-vuc-thong-ke', this)">Thống Kê</button>
+<div class="main-content">
+    <!-- giao dien dang nhap quan tri -->
+    <div id="giao-dien-dang-nhap-admin" class="login-box">
+        <h2>Đăng Nhập Quản Trị Hệ Thống</h2>
+        <input type="password" id="mat-khau-admin" placeholder="Nhập mã quản trị viên">
+        <button onclick="kiem_tra_admin()">Đăng Nhập</button>
     </div>
 
-    <!-- tab ban choi -->
-    <div id="khu-vuc-ban" class="tab-content active">
-        <div class="grid-ban" id="danh-sach-ban-ui"></div>
+    <!-- bang dieu khien cua admin -->
+    <div id="giao-dien-quan-ly-admin" class="container admin-panel">
+        <h1>Bảng Điều Khiển Hệ Thống</h1>
+        <div class="admin-form">
+            <input type="text" id="ten-clb-moi" placeholder="Tên câu lạc bộ mới">
+            <input type="text" id="ma-pin-moi" placeholder="Mã PIN (4 ký tự)" maxlength="4">
+            <button onclick="tao_cau_lac_bo_moi()">Tạo Câu Lạc Bộ</button>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tên Câu Lạc Bộ</th>
+                        <th>Mã PIN</th>
+                        <th>Đường Link Riêng</th>
+                        <th>Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody id="danh-sach-clb-admin">
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- tab cai dat -->
-    <div id="khu-vuc-cai-dat" class="tab-content">
-        <div class="cai-dat-pin">
-            <h3>Bảo Mật Câu Lạc Bộ</h3>
+    <!-- giao dien dang nhap cau lac bo -->
+    <div id="giao-dien-dang-nhap-clb" class="login-box" style="display: none;">
+        <h2>Đăng Nhập: <span id="ten-clb-hien-thi">...</span></h2>
+        <input type="password" id="ma-pin-dang-nhap" placeholder="Nhập mã PIN 4 ký tự" maxlength="4">
+        <button onclick="kiem_tra_pin_clb()">Vào Hệ Thống</button>
+    </div>
+
+    <!-- ung dung quan ly chinh -->
+    <div id="giao-dien-ung-dung" class="container">
+        <h1 id="tieu-de-app-clb">Quản Lý Billard</h1>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="chuyen_tab('khu-vuc-ban', this)">Bàn Chơi</button>
+            <button class="tab-btn" onclick="chuyen_tab('khu-vuc-cai-dat', this)">Cài Đặt & Thực Đơn</button>
+            <button class="tab-btn" onclick="chuyen_tab('khu-vuc-thong-ke', this)">Thống Kê</button>
+        </div>
+
+        <!-- tab ban choi -->
+        <div id="khu-vuc-ban" class="tab-content active">
+            <div class="grid-ban" id="danh-sach-ban-ui"></div>
+        </div>
+
+        <!-- tab cai dat -->
+        <div id="khu-vuc-cai-dat" class="tab-content">
+            <div class="cai-dat-pin">
+                <h3>Bảo Mật Câu Lạc Bộ</h3>
+                <div class="form-group flex-wrap">
+                    <input type="text" id="doi-pin-input" class="input-flex" placeholder="Nhập mã PIN mới (4 ký tự)" maxlength="4">
+                    <button class="btn-flex" onclick="doi_ma_pin_clb()">Cập Nhật PIN</button>
+                </div>
+            </div>
+
+            <h3>Giá Tiền Giờ Mặc Định (Chung)</h3>
+            <p style="font-size: 0.9em; color: #555;">Sẽ được áp dụng nếu bàn không được đặt giá riêng.</p>
             <div class="form-group flex-wrap">
-                <input type="text" id="doi-pin-input" class="input-flex" placeholder="Nhập mã PIN mới (4 ký tự)" maxlength="4">
-                <button class="btn-flex" onclick="doi_ma_pin_clb()">Cập Nhật PIN</button>
+                <input type="number" id="gia-tien-gio-input" class="input-flex" placeholder="Giá tiền mỗi giờ (VNĐ)">
+                <button class="btn-flex" onclick="luu_gia_tien_gio()">Cập Nhật Giá Chung</button>
+            </div>
+            <hr>
+            
+            <h3>Quản Lý Bàn Chơi</h3>
+            <div class="form-group flex-wrap">
+                <input type="text" id="ten-ban-input" class="input-flex" placeholder="Tên bàn mới (VD: Bàn VIP 1)">
+                <input type="number" id="gia-ban-input" class="input-flex" placeholder="Giá giờ (Để trống = Giá mặc định)">
+                <button class="btn-flex" onclick="them_ban_moi()">Thêm Bàn</button>
+            </div>
+            <div class="table-responsive" style="margin-bottom: 20px;">
+                <table id="bang-quan-ly-ban">
+                    <thead><tr><th>Tên Bàn</th><th>Giá Giờ</th><th>Trạng Thái</th><th>Thao Tác</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <hr>
+
+            <h3>Quản Lý Thực Đơn (Món Bán Kèm)</h3>
+            <div class="form-group flex-wrap">
+                <input type="text" id="ten-mon-input" class="input-flex" placeholder="Tên món (VD: Nước ngọt)">
+                <input type="number" id="gia-mon-input" class="input-flex" placeholder="Giá tiền (VNĐ)">
+                <button class="btn-flex" onclick="them_mon_phu()">Thêm Món</button>
+            </div>
+            <div class="table-responsive">
+                <table id="bang-thuc-don">
+                    <thead><tr><th>Tên Món</th><th>Giá Tiền</th><th>Thao Tác</th></tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
 
-        <h3>Giá Tiền Giờ Mặc Định (Chung)</h3>
-        <p style="font-size: 0.9em; color: #555;">Sẽ được áp dụng nếu bàn không được đặt giá riêng.</p>
-        <div class="form-group flex-wrap">
-            <input type="number" id="gia-tien-gio-input" class="input-flex" placeholder="Giá tiền mỗi giờ (VNĐ)">
-            <button class="btn-flex" onclick="luu_gia_tien_gio()">Cập Nhật Giá Chung</button>
-        </div>
-        <hr>
-        
-        <h3>Quản Lý Bàn Chơi</h3>
-        <div class="form-group flex-wrap">
-            <input type="text" id="ten-ban-input" class="input-flex" placeholder="Tên bàn mới (VD: Bàn VIP 1)">
-            <input type="number" id="gia-ban-input" class="input-flex" placeholder="Giá giờ (Để trống = Giá mặc định)">
-            <button class="btn-flex" onclick="them_ban_moi()">Thêm Bàn</button>
-        </div>
-        <div class="table-responsive" style="margin-bottom: 20px;">
-            <table id="bang-quan-ly-ban">
-                <thead><tr><th>Tên Bàn</th><th>Giá Giờ</th><th>Trạng Thái</th><th>Thao Tác</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <hr>
-
-        <h3>Quản Lý Thực Đơn (Món Bán Kèm)</h3>
-        <div class="form-group flex-wrap">
-            <input type="text" id="ten-mon-input" class="input-flex" placeholder="Tên món (VD: Nước ngọt)">
-            <input type="number" id="gia-mon-input" class="input-flex" placeholder="Giá tiền (VNĐ)">
-            <button class="btn-flex" onclick="them_mon_phu()">Thêm Món</button>
-        </div>
-        <div class="table-responsive">
-            <table id="bang-thuc-don">
-                <thead><tr><th>Tên Món</th><th>Giá Tiền</th><th>Thao Tác</th></tr></thead>
-                <tbody></tbody>
-            </table>
+        <!-- tab thong ke -->
+        <div id="khu-vuc-thong-ke" class="tab-content">
+            <h3>Lịch Sử Hóa Đơn</h3>
+            <p style="font-size: 1.1em;">Tổng doanh thu: <strong id="tong-doanh-thu-ui" style="color: #f44336;">0 VNĐ</strong></p>
+            <div class="table-responsive">
+                <table id="bang-thong-ke">
+                    <thead><tr><th>Thời Gian</th><th>Bàn</th><th>Tiền Giờ</th><th>Tiền Dịch Vụ</th><th>Tổng Cộng</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
+</div>
 
-    <!-- tab thong ke -->
-    <div id="khu-vuc-thong-ke" class="tab-content">
-        <h3>Lịch Sử Hóa Đơn</h3>
-        <p style="font-size: 1.1em;">Tổng doanh thu: <strong id="tong-doanh-thu-ui" style="color: #f44336;">0 VNĐ</strong></p>
-        <div class="table-responsive">
-            <table id="bang-thong-ke">
-                <thead><tr><th>Thời Gian</th><th>Bàn</th><th>Tiền Giờ</th><th>Tiền Dịch Vụ</th><th>Tổng Cộng</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
+<!-- Footer bản quyền -->
+<div class="app-footer">
+    Dlk Edu Tech - Phát triển bởi tranhongdan@tranphudlk.edu.vn
 </div>
 
 <!-- modal quan ly tung ban -->
@@ -428,7 +439,7 @@
             if (ket_qua.exists()) {
                 gia_tien_mot_gio = ket_qua.val();
                 document.getElementById('gia-tien-gio-input').value = gia_tien_mot_gio;
-                hien_thi_giao_dien_ban(); // render lai vi gia chung co the anh huong ban chua co gia rieng
+                hien_thi_giao_dien_ban(); 
                 hien_thi_quan_ly_ban();
             }
         });
@@ -520,7 +531,7 @@
 
         if (ten) {
             let data_moi = { ten_ban: ten, trang_thai: 'trong', thoi_gian_bat_dau: null, mon_da_goi: {} };
-            if(gia_ban) data_moi.gia_gio = gia_ban; // chi luu neu co nhap gia rieng
+            if(gia_ban) data_moi.gia_gio = gia_ban; 
 
             push(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban'), data_moi);
             document.getElementById('ten-ban-input').value = '';
@@ -536,11 +547,9 @@
         if (gia_moi !== null) {
             let ban_ref = ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/danh_sach_ban/' + ma_ban);
             if (gia_moi.trim() === "") {
-                // xoa gia rieng, dung gia chung
                 update(ban_ref, { gia_gio: null });
                 alert("Đã chuyển về sử dụng giá giờ chung!");
             } else if (!isNaN(gia_moi) && parseInt(gia_moi) > 0) {
-                // cap nhat gia rieng
                 update(ban_ref, { gia_gio: parseInt(gia_moi) });
                 alert("Đã cập nhật giá riêng cho bàn!");
             } else {
