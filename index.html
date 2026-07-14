@@ -207,13 +207,40 @@
             </div>
         </div>
 
-        <!-- tab thong ke -->
+        <!-- tab thong ke nang cao -->
         <div id="khu-vuc-thong-ke" class="tab-content">
-            <h3>Lịch Sử Hóa Đơn</h3>
-            <p style="font-size: 1.1em;">Tổng doanh thu: <strong id="tong-doanh-thu-ui" style="color: #f44336;">0 VNĐ</strong></p>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                <h3 style="margin: 0 0 15px 0;">Thống Kê Doanh Thu</h3>
+                <button class="btn-ket-thuc" style="margin-bottom: 15px;" onclick="xoa_tat_ca_thong_ke()">🗑 Xóa Toàn Bộ Dữ Liệu</button>
+            </div>
+
+            <!-- Bo loc tieu chi -->
+            <div class="form-group flex-wrap" style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="width: 100%; font-weight: bold; margin-bottom: 5px; color: #1565c0;">Lọc theo thời gian:</div>
+                <label style="margin: 0; min-width: 30px;">Từ:</label>
+                <input type="date" id="loc-ngay-bat-dau" class="input-flex">
+                <label style="margin: 0; min-width: 30px;">Đến:</label>
+                <input type="date" id="loc-ngay-ket-thuc" class="input-flex">
+                <button class="btn-flex" style="background: #4CAF50;" onclick="loc_thong_ke()">🔍 Lọc Dữ Liệu</button>
+                <button class="btn-flex btn-huy" onclick="xoa_loc_thong_ke()">Tất Cả</button>
+            </div>
+
+            <div style="background: #fff3e0; padding: 15px; border-radius: 8px; border: 1px solid #ffcc80; margin-bottom: 20px; font-size: 1.1em;">
+                Tổng doanh thu (theo danh sách lọc): <strong id="tong-doanh-thu-ui" style="color: #f44336; font-size: 1.4em; display: block; margin-top: 5px;">0 VNĐ</strong>
+            </div>
+
             <div class="table-responsive">
                 <table id="bang-thong-ke">
-                    <thead><tr><th>Thời Gian</th><th>Bàn</th><th>Tiền Giờ</th><th>Tiền Dịch Vụ</th><th>Tổng Cộng</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Thời Gian</th>
+                            <th>Bàn</th>
+                            <th>Tiền Giờ</th>
+                            <th>Tiền Dịch Vụ</th>
+                            <th>Tổng Cộng</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -319,6 +346,7 @@
     let gia_tien_mot_gio = 50000;
     let danh_sach_ban = {};
     let danh_sach_thuc_don = {};
+    let danh_sach_lich_su = {}; // Bien chua du lieu lich su de loc
     let ban_dang_chon = null;
 
     // kiem tra duong dan web
@@ -449,24 +477,11 @@
             hien_thi_thuc_don();
         });
 
+        // Lang nghe du lieu thong ke lich su don hang
         onValue(ref(co_so_du_lieu, nut_du_lieu + 'lich_su_hoa_don'), (ket_qua) => {
-            let tong_doanh_thu = 0;
-            let html_thong_ke = '';
-            if (ket_qua.exists()) {
-                const lich_su = ket_qua.val();
-                for (let ma_don in lich_su) {
-                    let don = lich_su[ma_don];
-                    tong_doanh_thu += don.tong_tien;
-                    let tg = new Date(don.thoi_gian_thanh_toan).toLocaleString('vi-VN');
-                    html_thong_ke += `<tr>
-                        <td>${tg}</td><td>${don.ten_ban}</td>
-                        <td>${dinh_dang_tien(don.tien_gio)}</td><td>${dinh_dang_tien(don.tien_dich_vu)}</td>
-                        <td><strong>${dinh_dang_tien(don.tong_tien)}</strong></td>
-                    </tr>`;
-                }
-            }
-            document.getElementById('bang-thong-ke').getElementsByTagName('tbody')[0].innerHTML = html_thong_ke;
-            document.getElementById('tong-doanh-thu-ui').innerText = dinh_dang_tien(tong_doanh_thu) + ' VNĐ';
+            danh_sach_lich_su = ket_qua.exists() ? ket_qua.val() : {};
+            // Tu dong render lai bang thong ke voi bo loc hien tai (neu co)
+            loc_thong_ke(); 
         });
     }
 
@@ -480,6 +495,81 @@
     window.dinh_dang_tien = function(tien) {
         return Math.round(tien).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     };
+
+    // CAC HAM VE THONG KE & XOA DU LIEU
+    window.render_thong_ke = function(ngay_bd = null, ngay_kt = null) {
+        let tong_doanh_thu = 0;
+        let html_thong_ke = '';
+        
+        // Chuyen object thanh mang de sap xep
+        let mang_lich_su = [];
+        for(let ma_don in danh_sach_lich_su) {
+            mang_lich_su.push({ id_don: ma_don, ...danh_sach_lich_su[ma_don] });
+        }
+        // Sap xep moi nhat len dau
+        mang_lich_su.sort((a, b) => b.thoi_gian_thanh_toan - a.thoi_gian_thanh_toan);
+
+        for (let don of mang_lich_su) {
+            let thoa_dieu_kien = true;
+            
+            // Kiem tra bo loc ngay
+            if(ngay_bd) {
+                let d_bd = new Date(ngay_bd).setHours(0,0,0,0);
+                if(don.thoi_gian_thanh_toan < d_bd) thoa_dieu_kien = false;
+            }
+            if(ngay_kt) {
+                let d_kt = new Date(ngay_kt).setHours(23,59,59,999);
+                if(don.thoi_gian_thanh_toan > d_kt) thoa_dieu_kien = false;
+            }
+
+            if(thoa_dieu_kien) {
+                tong_doanh_thu += don.tong_tien;
+                let tg = new Date(don.thoi_gian_thanh_toan).toLocaleString('vi-VN');
+                html_thong_ke += `<tr>
+                    <td>${tg}</td>
+                    <td>${don.ten_ban}</td>
+                    <td>${dinh_dang_tien(don.tien_gio)}</td>
+                    <td>${dinh_dang_tien(don.tien_dich_vu)}</td>
+                    <td><strong>${dinh_dang_tien(don.tong_tien)}</strong></td>
+                    <td><button class="btn-huy" style="padding: 5px 10px; font-size: 0.9em;" onclick="xoa_mot_don('${don.id_don}')">Xóa</button></td>
+                </tr>`;
+            }
+        }
+        
+        document.getElementById('bang-thong-ke').getElementsByTagName('tbody')[0].innerHTML = html_thong_ke;
+        document.getElementById('tong-doanh-thu-ui').innerText = dinh_dang_tien(tong_doanh_thu) + ' VNĐ';
+    };
+
+    window.loc_thong_ke = function() {
+        let bd = document.getElementById('loc-ngay-bat-dau').value;
+        let kt = document.getElementById('loc-ngay-ket-thuc').value;
+        render_thong_ke(bd, kt);
+    };
+
+    window.xoa_loc_thong_ke = function() {
+        document.getElementById('loc-ngay-bat-dau').value = '';
+        document.getElementById('loc-ngay-ket-thuc').value = '';
+        render_thong_ke();
+    };
+
+    window.xoa_mot_don = function(id_don) {
+        if(confirm("Bạn có chắc chắn muốn xóa hóa đơn này? Doanh thu sẽ bị trừ đi.")) {
+            remove(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/lich_su_hoa_don/' + id_don));
+        }
+    };
+
+    window.xoa_tat_ca_thong_ke = function() {
+        if(confirm("CẢNH BÁO QUAN TRỌNG: Thao tác này sẽ xóa VĨNH VIỄN toàn bộ lịch sử hóa đơn và đưa doanh thu về 0.\nBạn có thực sự muốn xóa?")) {
+            let xac_nhan = prompt("Để bảo mật, vui lòng nhập mã PIN đăng nhập của Câu Lạc Bộ để xác nhận xóa:");
+            if(xac_nhan === thong_tin_clb_hien_tai.ma_pin) {
+                remove(ref(co_so_du_lieu, 'clubs_data/' + id_clb_hien_tai + '/lich_su_hoa_don'));
+                alert("Đã xóa trắng dữ liệu thống kê thành công!");
+            } else if (xac_nhan !== null) {
+                alert("Mã PIN không đúng, thao tác bị hủy!");
+            }
+        }
+    };
+
 
     function hien_thi_giao_dien_ban() {
         const khu_vuc = document.getElementById('danh-sach-ban-ui');
@@ -500,7 +590,6 @@
         }
     }
 
-    // quan ly tang giam ban va gia rieng
     function hien_thi_quan_ly_ban() {
         const bang_ban = document.getElementById('bang-quan-ly-ban').getElementsByTagName('tbody')[0];
         bang_ban.innerHTML = '';
@@ -568,7 +657,6 @@
         }
     };
 
-    // quan ly thuc don va gia chung
     function hien_thi_thuc_don() {
         const bang = document.getElementById('bang-thuc-don').getElementsByTagName('tbody')[0];
         bang.innerHTML = '';
@@ -694,7 +782,6 @@
         setTimeout(ve_mon_dang_choi, 200);
     };
 
-    // xu ly thanh toan
     window.hien_thi_hoa_don = function() {
         document.getElementById('khu-vuc-dang-choi').style.display = 'none';
         document.getElementById('khu-vuc-hoa-don').style.display = 'block';
